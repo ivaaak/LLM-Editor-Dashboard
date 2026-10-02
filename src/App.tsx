@@ -1,256 +1,182 @@
-import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './App.module.css';
+import ui from './common.module.css';
+import AddModelDialog from './AddModelDialog';
+import Datasets from './Datasets';
 import Header from './Header';
-import ModelsTable from './ModelsTable';
-import ParameterControls from './ParameterControls';
+import ModelDetail from './ModelDetail';
+import Overview from './Overview';
 import PerformanceComparison from './PerformanceComparison';
+import SettingsPage from './SettingsPage';
 import Sidebar from './Sidebar';
-import { Model } from './types';
-import mockData from './mockData';
+import { TABS } from './navigation';
+import { useDashboard } from './useDashboard';
+import { useLocalStorage } from './useLocalStorage';
+import type { NewModelInput, TabId, Theme } from '../shared/types';
+
+function readTabFromHash(): TabId {
+  const id = window.location.hash.replace(/^#\/?/, '');
+  return TABS.find(tab => tab.id === id)?.id ?? 'overview';
+}
+
+function useSystemPrefersDark(): boolean {
+  const [prefersDark, setPrefersDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => setPrefersDark(media.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+  return prefersDark;
+}
+
+const isTheme = (value: unknown): value is Theme => value === 'system' || value === 'light' || value === 'dark';
+const isOptionalString = (value: unknown): value is string | null => value === null || typeof value === 'string';
 
 const App: React.FC = () => {
-  const [models, setModels] = useState<Model[]>(mockData.models);
-  const [selectedModelId, setSelectedModelId] = useState<string | null>(models[0]?.id || null);
-  const [trainingMetrics, setTrainingMetrics] = useState(mockData.trainingMetrics);
-  const [activeTab, setActiveTab] = useState('overview');
+  const { loaded, connected, actionError, models, datasets, simulation, actions } = useDashboard();
+  const [theme, setTheme] = useLocalStorage<Theme>('llm-dashboard:theme', 'system', isTheme);
+  const [storedModelId, setSelectedModelId] = useLocalStorage<string | null>('llm-dashboard:selected-model', null, isOptionalString);
+  const [activeTab, setActiveTab] = useState<TabId>(readTabFromHash);
+  const [isAddModelOpen, setAddModelOpen] = useState(false);
 
-  const selectedModel = models.find(model => model.id === selectedModelId) || null;
+  // Fall back to the first model when the stored selection no longer exists (e.g. it was deleted).
+  const selectedModel = models.find(model => model.id === storedModelId) ?? models[0] ?? null;
+  const selectedModelId = selectedModel?.id ?? null;
+  const trainingCount = models.filter(m => m.status === 'training').length;
 
-  const updateModelParameter = (modelId: string, paramName: string, value: number | string | boolean) => {
-    setModels(prevModels => 
-      prevModels.map(model => 
-        model.id === modelId 
-          ? {
-              ...model,
-              parameters: model.parameters.map(param => 
-                param.name === paramName ? { ...param, value } : param
-              )
-            }
-          : model
-      )
-    );
-    
-    // In a real app, this would trigger a recalculation or API call
-    simulateTrainingUpdate(modelId);
+  // Theme
+  const prefersDark = useSystemPrefersDark();
+  const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+  useEffect(() => {
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  // Tab <-> URL hash, so reloads and the back button keep the current page.
+  useEffect(() => {
+    const onHashChange = () => setActiveTab(readTabFromHash());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const navigate = useCallback((tab: TabId) => {
+    window.location.hash = `/${tab}`;
+    setActiveTab(tab);
+  }, []);
+
+  const openDetails = (id: string) => {
+    setSelectedModelId(id);
+    navigate('model-detail');
   };
 
-  const simulateTrainingUpdate = (modelId: string) => {
-    // Simulate changes in training metrics when parameters change
-    setTrainingMetrics(prev => {
-      const updated = {...prev};
-      
-      // Update the loss curve with slight variations
-      updated.loss = updated.loss.map(point => ({
-        ...point,
-        [modelId]: point[modelId] * (0.95 + Math.random() * 0.1)
-      }));
-      
-      // Update the accuracy curve
-      updated.accuracy = updated.accuracy.map(point => ({
-        ...point,
-        [modelId]: Math.min(1, point[modelId] * (1 + (Math.random() * 0.05)))
-      }));
-      
-      return updated;
-    });
+  const createModel = async (input: NewModelInput) => {
+    const id = await actions.createModel(input);
+    setSelectedModelId(id);
+    setAddModelOpen(false);
+    navigate('model-detail');
   };
 
-  const startTraining = (modelId: string) => {
-    setModels(prevModels => 
-      prevModels.map(model => 
-        model.id === modelId 
-          ? { ...model, status: 'training' }
-          : model
-      )
-    );
-    
-    // Simulate training completion after 3 seconds
-    setTimeout(() => {
-      setModels(prevModels => 
-        prevModels.map(model => 
-          model.id === modelId 
-            ? { ...model, status: 'trained' }
-            : model
-        )
-      );
-    }, 3000);
+  const renderPage = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <Overview
+            models={models}
+            datasets={datasets}
+            selectedModelId={selectedModelId}
+            onSelectModel={setSelectedModelId}
+            onOpenDetails={openDetails}
+            onStartTraining={actions.startTraining}
+            onCancelTraining={actions.cancelTraining}
+          />
+        );
+      case 'model-detail':
+        return (
+          <ModelDetail
+            models={models}
+            datasets={datasets}
+            model={selectedModel}
+            epochIntervalMs={simulation.epochIntervalMs}
+            onSelectModel={setSelectedModelId}
+            onParameterChange={actions.updateParameter}
+            onResetParameters={actions.resetParameters}
+            onSetDataset={actions.setModelDataset}
+            onStartTraining={actions.startTraining}
+            onCancelTraining={actions.cancelTraining}
+            onDeleteModel={actions.deleteModel}
+            onAddModel={() => setAddModelOpen(true)}
+          />
+        );
+      case 'comparison':
+        return <PerformanceComparison models={models} />;
+      case 'datasets':
+        return (
+          <Datasets
+            datasets={datasets}
+            models={models}
+            onAddDataset={actions.addDataset}
+            onDeleteDataset={actions.deleteDataset}
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsPage
+            theme={theme}
+            epochIntervalMs={simulation.epochIntervalMs}
+            onThemeChange={setTheme}
+            onEpochIntervalChange={actions.setEpochInterval}
+            onResetDemoData={actions.resetDemoData}
+          />
+        );
+    }
   };
 
   return (
     <div className={styles.app}>
-      <Header />
+      <Header
+        isDark={isDark}
+        onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')}
+        onAddModel={() => setAddModelOpen(true)}
+      />
       <div className={styles.mainContainer}>
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar activeTab={activeTab} setActiveTab={navigate} trainingCount={trainingCount} />
         <main className={styles.content}>
-          {activeTab === 'overview' && (
-            <>
-              <div className={styles.dashboardHeader}>
-                <h1>AI Model Fine-Tuning Dashboard</h1>
-                <p>Monitor and adjust your models' training parameters</p>
-              </div>
-              
-              <div className={styles.metricsCards}>
-                <div className={styles.metricCard}>
-                  <h3>Models</h3>
-                  <div className={styles.metricValue}>{models.length}</div>
-                </div>
-                <div className={styles.metricCard}>
-                  <h3>Training</h3>
-                  <div className={styles.metricValue}>
-                    {models.filter(m => m.status === 'training').length}
-                  </div>
-                </div>
-                <div className={styles.metricCard}>
-                  <h3>Completed</h3>
-                  <div className={styles.metricValue}>
-                    {models.filter(m => m.status === 'trained').length}
-                  </div>
-                </div>
-                <div className={styles.metricCard}>
-                  <h3>Best Accuracy</h3>
-                  <div className={styles.metricValue}>
-                    {Math.max(...models.map(m => m.metrics.accuracy)).toFixed(2)}
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.chartGrid}>
-                <div className={styles.chartContainer}>
-                  <h2>Training Loss</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={trainingMetrics.loss}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="epoch" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      {models.map(model => (
-                        <Line 
-                          key={model.id}
-                          type="monotone"
-                          dataKey={model.id}
-                          name={model.name}
-                          stroke={model.color}
-                          activeDot={{ r: 8 }}
-                        />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                <div className={styles.chartContainer}>
-                  <h2>Training Accuracy</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={trainingMetrics.accuracy}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="epoch" />
-                      <YAxis domain={[0, 1]} />
-                      <Tooltip />
-                      <Legend />
-                      {models.map(model => (
-                        <Line 
-                          key={model.id}
-                          type="monotone"
-                          dataKey={model.id}
-                          name={model.name}
-                          stroke={model.color}
-                          activeDot={{ r: 8 }}
-                        />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              <div className={styles.tableSection}>
-                <h2>Models</h2>
-                <ModelsTable 
-                  models={models} 
-                  onSelectModel={setSelectedModelId}
-                  selectedModelId={selectedModelId}
-                  onStartTraining={startTraining}
-                />
-              </div>
-            </>
+          {loaded && !connected && (
+            <div className={`${ui.notice} ${styles.banner}`} role="status">
+              Lost connection to the API server. Reconnecting...
+            </div>
           )}
-
-          {activeTab === 'model-detail' && selectedModel && (
-            <div className={styles.modelDetail}>
-              <h1>{selectedModel.name} Details</h1>
-              
-              <div className={styles.modelInfo}>
-                <div className={styles.modelInfoCard}>
-                  <h3>Model Information</h3>
-                  <p><strong>Type:</strong> {selectedModel.type}</p>
-                  <p><strong>Size:</strong> {selectedModel.size}</p>
-                  <p><strong>Status:</strong> {selectedModel.status}</p>
-                  <p><strong>Last Updated:</strong> {selectedModel.lastUpdated}</p>
-                </div>
-                
-                <div className={styles.modelMetricsCard}>
-                  <h3>Performance Metrics</h3>
-                  <div className={styles.metricsGrid}>
-                    <div>
-                      <p>Accuracy</p>
-                      <p className={styles.metricValue}>{selectedModel.metrics.accuracy.toFixed(4)}</p>
-                    </div>
-                    <div>
-                      <p>Loss</p>
-                      <p className={styles.metricValue}>{selectedModel.metrics.loss.toFixed(4)}</p>
-                    </div>
-                    <div>
-                      <p>F1 Score</p>
-                      <p className={styles.metricValue}>{selectedModel.metrics.f1.toFixed(4)}</p>
-                    </div>
-                    <div>
-                      <p>Training Time</p>
-                      <p className={styles.metricValue}>{selectedModel.metrics.trainingTime}m</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className={styles.parameterControlsContainer}>
-                <h2>Fine-tuning Parameters</h2>
-                <ParameterControls 
-                  parameters={selectedModel.parameters}
-                  onParameterChange={(paramName, value) => 
-                    updateModelParameter(selectedModel.id, paramName, value)
-                  }
-                  onStartTraining={() => startTraining(selectedModel.id)}
-                  isTraining={selectedModel.status === 'training'}
-                />
-              </div>
-              
-              <div className={styles.modelCharts}>
-                <div className={styles.chartContainer}>
-                  <h2>Parameter Sensitivity</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={[
-                      { name: 'Learning Rate', sensitivity: 0.8 },
-                      { name: 'Batch Size', sensitivity: 0.5 },
-                      { name: 'Epochs', sensitivity: 0.3 },
-                      { name: 'Dropout', sensitivity: 0.7 },
-                      { name: 'Hidden Layers', sensitivity: 0.6 }
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="sensitivity" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+          {actionError && (
+            <div className={`${ui.notice} ${styles.banner}`} role="alert">
+              <span>{actionError}</span>
+              <button className={`${ui.button} ${ui.small} ${ui.secondary}`} onClick={actions.dismissError}>
+                Dismiss
+              </button>
+            </div>
+          )}
+          {loaded ? renderPage() : (
+            <div className={ui.card}>
+              <div className={ui.empty}>
+                {connected ? 'Loading...' : (
+                  <>
+                    <p>Connecting to the API server...</p>
+                    <p className={ui.small}>If this doesn't go away, make sure the server is running (<code>npm run dev</code>).</p>
+                  </>
+                )}
               </div>
             </div>
           )}
-          
-          {activeTab === 'comparison' && (
-            <PerformanceComparison models={models} />
-          )}
         </main>
       </div>
+
+      <AddModelDialog
+        open={isAddModelOpen}
+        datasets={datasets}
+        existingNames={models.map(m => m.name)}
+        usedColors={models.map(m => m.color)}
+        onClose={() => setAddModelOpen(false)}
+        onCreate={createModel}
+      />
     </div>
   );
 };

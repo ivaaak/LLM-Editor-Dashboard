@@ -1,21 +1,35 @@
-.tableContainer {
-    width: 100%;
-    overflow-x: auto;
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
+.search {
+    flex: 1;
+    min-width: 200px;
 }
 
-.table th {
-    text-align: left;
-    padding: 12px 16px;
-    background-color: #f5f7fa;
-    color: #7f8c8d;
-    font-weight: 500;
-    font-size: 14px;
-    border-bottom: 1px solid #e1e5ea;
+.sortButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.sortButton:hover {
+    color: var(--text);
+}
+
+.sortIndicator {
+    display: inline-block;
+    width: 10px;
+    font-size: 9px;
 }
 
 .tableRow {
@@ -24,87 +38,22 @@
 }
 
 .tableRow:hover {
-    background-color: #f5f7fa;
+    background-color: var(--surface-muted);
 }
 
 .tableRow.selected {
-    background-color: rgba(52, 152, 219, 0.1);
-}
-
-.table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e1e5ea;
+    background-color: var(--primary-soft);
 }
 
 .modelName {
-    display: flex;
-    align-items: center;
-}
-
-.colorIndicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
-}
-
-.status {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
     font-weight: 500;
 }
 
-.status.pending {
-    background-color: #f1c40f;
-    color: #fff;
-}
-
-.status.training {
-    background-color: #3498db;
-    color: #fff;
-}
-
-.status.trained {
-    background-color: #2ecc71;
-    color: #fff;
-}
-
-.status.failed {
-    background-color: #e74c3c;
-    color: #fff;
+.nowrap {
+    white-space: nowrap;
 }
 
 .actions {
     display: flex;
     gap: 8px;
-}
-
-.actionButton {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.actionButton:hover {
-    background-color: #2980b9;
-}
-
-.actionButton:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-}
-
-.detailsButton {
-    background-color: #7f8c8d;
-}
-
-.detailsButton:hover {
-    background-color: #6c7a89;
 }

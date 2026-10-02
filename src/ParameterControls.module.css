@@ -1,0 +1,132 @@
+.parameterControls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.parameterGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 20px 24px;
+}
+
+.parameterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.labelRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.parameterLabel {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--surface-muted);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: help;
+}
+
+.tooltipText {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background-color: #2c3e50;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.15s;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.tooltip:hover .tooltipText,
+.tooltip:focus .tooltipText {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modified {
+    margin-left: auto;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: var(--primary-soft);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.rangeControl {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rangeControl input[type='range'] {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--primary);
+}
+
+.rangeValue {
+    min-width: 64px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: var(--surface-muted);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.numberControl {
+    width: 100%;
+}
+
+.checkboxControl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    min-height: 36px;
+    cursor: pointer;
+}
+
+.checkboxControl input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+}
+
+.actionButtons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}

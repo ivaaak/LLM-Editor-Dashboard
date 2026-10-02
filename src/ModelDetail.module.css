@@ -1,0 +1,132 @@
+.titleBlock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.colorSwatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.headerActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cardTitle {
+    margin-bottom: 16px;
+}
+
+.infoList {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 16px;
+    margin: 0;
+    font-size: 14px;
+    align-items: center;
+}
+
+.infoList dt {
+    color: var(--text-muted);
+}
+
+.infoList dd {
+    margin: 0;
+    min-width: 0;
+}
+
+.datasetSelect {
+    width: 100%;
+    max-width: 320px;
+}
+
+.metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.metricLabel {
+    margin: 0 0 2px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.metricValue {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.progressText {
+    margin: 8px 0 0;
+    font-size: 13px;
+}
+
+.estimate {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: var(--surface-muted);
+}
+
+.estimateTitle {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.estimateGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.estimateValue {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.warnings {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+}
+
+.runRow {
+    cursor: pointer;
+}
+
+.runRow:hover {
+    background-color: var(--surface-muted);
+}
+
+.runRowActive {
+    background-color: var(--primary-soft);
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.dangerZone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.dangerZone p {
+    margin: 4px 0 0;
+}

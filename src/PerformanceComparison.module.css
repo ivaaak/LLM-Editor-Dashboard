@@ -1,133 +1,61 @@
-.comparisonContainer {
-    padding: 16px;
-}
-
-.comparisonContainer h1 {
-    margin-bottom: 24px;
-    color: #2c3e50;
-}
-
 .controlPanel {
     display: flex;
     flex-wrap: wrap;
     gap: 24px;
     margin-bottom: 24px;
-    background-color: white;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.metricSelector,
-.modelSelector {
+.metricSelector {
     flex: 1;
-    min-width: 300px;
+    min-width: min(100%, 240px);
+    display: flex;
+    flex-direction: column;
 }
 
-.metricSelector h3,
-.modelSelector h3 {
+.modelSelector {
+    flex: 3;
+    min-width: min(100%, 300px);
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.controlTitle {
+    display: block;
     margin-bottom: 12px;
+    padding: 0;
     font-size: 16px;
-    color: #2c3e50;
+    font-weight: 600;
+    color: var(--text);
 }
 
 .selectControl {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
 }
 
 .modelCheckboxes {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 12px 20px;
 }
 
 .modelCheckboxLabel {
     display: flex;
     align-items: center;
+    gap: 8px;
     font-size: 14px;
     cursor: pointer;
 }
 
-.modelCheckbox {
-    margin-right: 8px;
+.modelCheckboxLabel input {
+    accent-color: var(--primary);
 }
 
-.colorIndicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.chartGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-.chartContainer {
-    background-color: white;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.chartContainer h2 {
-    font-size: 18px;
-    margin-bottom: 16px;
-    color: #2c3e50;
-}
-
-.comparisonTable {
-    background-color: white;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.comparisonTable h2 {
-    font-size: 18px;
-    margin-bottom: 16px;
-    color: #2c3e50;
-}
-
-.tableContainer {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    text-align: left;
-    padding: 12px 16px;
-    background-color: #f5f7fa;
-    color: #7f8c8d;
-    font-weight: 500;
-    font-size: 14px;
-    border-bottom: 1px solid #e1e5ea;
-}
-
-.table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e1e5ea;
-}
-
-.modelName {
-    display: flex;
-    align-items: center;
-}
-
-@media (max-width: 768px) {
-    .chartGrid {
-        grid-template-columns: 1fr;
-    }
+.best {
+    font-weight: 700;
 }

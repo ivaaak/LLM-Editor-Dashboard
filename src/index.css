@@ -6,8 +6,109 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  color-scheme: light;
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-muted: #f5f7fa;
+  --border: #e1e5ea;
+  --text: #2c3e50;
+  --text-muted: #6b7a89;
+  --primary: #3498db;
+  --primary-hover: #2980b9;
+  --primary-soft: rgba(52, 152, 219, 0.12);
+  --danger: #e74c3c;
+  --danger-hover: #c0392b;
+  --warning-bg: #fef5e7;
+  --warning-fg: #9a6207;
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --sidebar-bg: #2c3e50;
+  --sidebar-text: #ecf0f1;
+  --chart-grid: #e1e5ea;
+
+  --badge-pending-bg: #fdf2d0;
+  --badge-pending-fg: #8a6100;
+  --badge-training-bg: #dbeefb;
+  --badge-training-fg: #1f6fa8;
+  --badge-trained-bg: #d8f5e4;
+  --badge-trained-fg: #1b7a45;
+  --badge-failed-bg: #fbe0dd;
+  --badge-failed-fg: #b03224;
+  --badge-cancelled-bg: #e9edf1;
+  --badge-cancelled-fg: #5d6d7e;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-muted: #273449;
+  --border: #334155;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --primary: #3b9ae1;
+  --primary-hover: #5aaee8;
+  --primary-soft: rgba(59, 154, 225, 0.18);
+  --danger: #e5534b;
+  --danger-hover: #f06a62;
+  --warning-bg: rgba(243, 156, 18, 0.15);
+  --warning-fg: #f5c26b;
+  --shadow: none;
+  --sidebar-bg: #0b1220;
+  --sidebar-text: #e2e8f0;
+  --chart-grid: #334155;
+
+  --badge-pending-bg: rgba(241, 196, 15, 0.18);
+  --badge-pending-fg: #f4d35e;
+  --badge-training-bg: rgba(52, 152, 219, 0.2);
+  --badge-training-fg: #7cc0f0;
+  --badge-trained-bg: rgba(46, 204, 113, 0.18);
+  --badge-trained-fg: #6ee7a0;
+  --badge-failed-bg: rgba(231, 76, 60, 0.2);
+  --badge-failed-fg: #f5968c;
+  --badge-cancelled-bg: rgba(148, 163, 184, 0.18);
+  --badge-cancelled-fg: #b6c2d1;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+}
+
+/* Recharts renders SVG presentation attributes; CSS lets the charts follow the theme. */
+.recharts-cartesian-grid line,
+.recharts-polar-grid-angle line,
+.recharts-polar-grid-concentric polygon,
+.recharts-polar-grid-concentric-polygon {
+  stroke: var(--chart-grid);
+}
+
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line,
+.recharts-polar-radius-axis-line {
+  stroke: var(--border);
+}
+
+.recharts-cartesian-axis-tick-value,
+.recharts-polar-angle-axis-tick-value,
+.recharts-polar-radius-axis-tick-value,
+.recharts-label {
+  fill: var(--text-muted);
+}
+
+.recharts-rectangle.recharts-tooltip-cursor {
+  fill: var(--primary-soft);
 }
