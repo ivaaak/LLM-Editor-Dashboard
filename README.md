@@ -4,6 +4,15 @@ A React + TypeScript + Vite dashboard for monitoring, tuning and comparing fine-
 by a small Node/Express API with SQLite storage. Training runs are **simulated on the server**, so they keep
 going when the page is closed.
 
+## Screenshots
+<img src="https://raw.githubusercontent.com/ivaaak/LLM-Editor-Dashboard/refs/heads/main/screenshots/1.png"></img>
+<img src="https://raw.githubusercontent.com/ivaaak/LLM-Editor-Dashboard/refs/heads/main/screenshots/2.png"></img>
+<img src="https://raw.githubusercontent.com/ivaaak/LLM-Editor-Dashboard/refs/heads/main/screenshots/3.png"></img>
+<img src="https://raw.githubusercontent.com/ivaaak/LLM-Editor-Dashboard/refs/heads/main/screenshots/4.png"></img>
+<img src="https://raw.githubusercontent.com/ivaaak/LLM-Editor-Dashboard/refs/heads/main/screenshots/5.png"></img>
+
+
+
 ## Features
 
 - **Overview**: KPI cards, validation loss/accuracy curves for each model's latest run, and a searchable, sortable, filterable models table with Train/Retrain/Cancel actions.
